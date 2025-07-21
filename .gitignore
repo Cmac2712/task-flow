@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+/**/node_modules
+
+
+# misc
+.DS_Store
+*.pem
+.npmrc
+.env
+swagger.json
+.idea/
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

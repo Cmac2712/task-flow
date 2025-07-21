@@ -1,0 +1,41 @@
+{
+  "name": "task-flow-platform",
+  "version": "1.0.0",
+  "description": "Real-Time Collaborative Task Management Platform",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:tasks\" \"npm run dev:notifications\" \"npm run dev:frontend\"",
+    "dev:gateway": "cd services/api-gateway && npm run dev",
+    "dev:auth": "cd services/auth-service && npm run dev",
+    "dev:tasks": "cd services/task-service && npm run dev",
+    "dev:notifications": "cd services/notification-service && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd services/api-gateway && npm install && cd ../auth-service && npm install && cd ../task-service && npm install && cd ../notification-service && npm install && cd ../../frontend && npm install",
+    "test": "npm run test:auth && npm run test:tasks && npm run test:frontend",
+    "test:auth": "cd services/auth-service && npm test",
+    "test:tasks": "cd services/task-service && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "build": "cd frontend && npm run build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "keywords": [
+    "task-management",
+    "real-time",
+    "collaboration",
+    "microservices",
+    "socket.io",
+    "rabbitmq",
+    "react",
+    "nodejs"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "react-hook-form": "^7.60.0"
+  }
+}
