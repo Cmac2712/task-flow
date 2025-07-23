@@ -149,6 +149,7 @@ router.post("/login", async (req, res) => {
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
+
     if (!isValidPassword) {
       return res.status(401).json({
         error: "Authentication failed",
@@ -156,6 +157,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    console.log("token:", process.env.JWT_SECRET);
     // Generate JWT token
     const token = jwt.sign(
       {

@@ -51,7 +51,7 @@ class ApiService {
   // Auth endpoints
   auth = {
     login: (email, password) =>
-      this.client.post("/api/auth/login", { email, password }),
+      this.client.post("/auth/login", { email, password }),
 
     register: (userData) => this.client.post("/auth/register", userData),
 

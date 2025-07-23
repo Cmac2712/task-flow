@@ -42,9 +42,9 @@ function App() {
         {(user.role === 'admin' || user.role === 'project_manager') && (
           <Route path="/admin" element={<AdminPage />} />
         )}
-        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        {/* <Route path="/login" element={<Navigate to="/dashboard" replace />} />
         <Route path="/register" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} /> */}
       </Routes>
     </Layout>
   )
