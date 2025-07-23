@@ -53,85 +53,85 @@ class ApiService {
     login: (email, password) =>
       this.client.post("/api/auth/login", { email, password }),
 
-    register: (userData) => this.client.post("/api/auth/register", userData),
+    register: (userData) => this.client.post("/auth/register", userData),
 
-    logout: () => this.client.post("/api/auth/logout"),
+    logout: () => this.client.post("/auth/logout"),
 
-    verifyToken: () => this.client.post("/api/auth/verify"),
+    verifyToken: () => this.client.post("/auth/verify"),
 
-    getProfile: () => this.client.get("/api/auth/profile"),
+    getProfile: () => this.client.get("/auth/profile"),
 
     updateProfile: (profileData) =>
-      this.client.put("/api/auth/profile", profileData),
+      this.client.put("/auth/profile", profileData),
   };
 
   // Task endpoints
   tasks = {
-    getAll: (params = {}) => this.client.get("/api/tasks", { params }),
+    getAll: (params = {}) => this.client.get("/tasks", { params }),
 
-    getById: (id) => this.client.get(`/api/tasks/${id}`),
+    getById: (id) => this.client.get(`/tasks/${id}`),
 
-    create: (taskData) => this.client.post("/api/tasks", taskData),
+    create: (taskData) => this.client.post("/tasks", taskData),
 
-    update: (id, taskData) => this.client.put(`/api/tasks/${id}`, taskData),
+    update: (id, taskData) => this.client.put(`/tasks/${id}`, taskData),
 
-    delete: (id) => this.client.delete(`/api/tasks/${id}`),
+    delete: (id) => this.client.delete(`/tasks/${id}`),
 
     updateStatus: (id, status) =>
-      this.client.patch(`/api/tasks/${id}/status`, { status }),
+      this.client.patch(`/tasks/${id}/status`, { status }),
 
     assign: (id, userId) =>
-      this.client.patch(`/api/tasks/${id}/assign`, { userId }),
+      this.client.patch(`/tasks/${id}/assign`, { userId }),
 
     addWatcher: (id, userId) =>
-      this.client.post(`/api/tasks/${id}/watchers`, { userId }),
+      this.client.post(`/tasks/${id}/watchers`, { userId }),
 
     removeWatcher: (id, userId) =>
-      this.client.delete(`/api/tasks/${id}/watchers/${userId}`),
+      this.client.delete(`/tasks/${id}/watchers/${userId}`),
 
-    getByUser: (userId) => this.client.get(`/api/tasks/user/${userId}`),
+    getByUser: (userId) => this.client.get(`/tasks/user/${userId}`),
 
-    getStats: () => this.client.get("/api/tasks/stats"),
+    getStats: () => this.client.get("/tasks/stats"),
   };
 
   // Comment endpoints
   comments = {
-    getByTask: (taskId) => this.client.get(`/api/comments/task/${taskId}`),
+    getByTask: (taskId) => this.client.get(`/comments/task/${taskId}`),
 
-    getById: (id) => this.client.get(`/api/comments/${id}`),
+    getById: (id) => this.client.get(`/comments/${id}`),
 
-    create: (commentData) => this.client.post("/api/comments", commentData),
+    create: (commentData) => this.client.post("/comments", commentData),
 
     update: (id, commentData) =>
-      this.client.put(`/api/comments/${id}`, commentData),
+      this.client.put(`/comments/${id}`, commentData),
 
-    delete: (id) => this.client.delete(`/api/comments/${id}`),
+    delete: (id) => this.client.delete(`/comments/${id}`),
 
-    getByUser: (userId) => this.client.get(`/api/comments/user/${userId}`),
+    getByUser: (userId) => this.client.get(`/comments/user/${userId}`),
   };
 
   // Admin endpoints
   admin = {
-    getUsers: (params = {}) => this.client.get("/api/admin/users", { params }),
+    getUsers: (params = {}) => this.client.get("/admin/users", { params }),
 
-    getUserById: (id) => this.client.get(`/api/admin/users/${id}`),
+    getUserById: (id) => this.client.get(`/admin/users/${id}`),
 
     updateUser: (id, userData) =>
-      this.client.put(`/api/admin/users/${id}`, userData),
+      this.client.put(`/admin/users/${id}`, userData),
 
-    deleteUser: (id) => this.client.delete(`/api/admin/users/${id}`),
+    deleteUser: (id) => this.client.delete(`/admin/users/${id}`),
 
     resetPassword: (id, newPassword) =>
-      this.client.post(`/api/admin/users/${id}/reset-password`, {
+      this.client.post(`/admin/users/${id}/reset-password`, {
         newPassword,
       }),
 
-    getStats: () => this.client.get("/api/admin/stats"),
+    getStats: () => this.client.get("/admin/stats"),
   };
 
   // Health check
   health = {
-    check: () => this.client.get("/api/health"),
+    check: () => this.client.get("/health"),
   };
 }
 
