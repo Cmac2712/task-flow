@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.auth.login(email, password)
       const { token, user: userData } = response.data
-      
+
       localStorage.setItem('token', token)
       api.setAuthToken(token)
       setUser(userData)
