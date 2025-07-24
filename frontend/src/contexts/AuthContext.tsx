@@ -1,10 +1,27 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { api } from '../services/api'
 import toast from 'react-hot-toast'
+import { User, RegisterData } from '../types'
 
-const AuthContext = createContext()
+interface AuthContextType {
+  user: User | null
+  loading: boolean
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  register: (userData: RegisterData) => Promise<{ success: boolean; error?: string }>
+  logout: () => Promise<void>
+  updateProfile: (profileData: Partial<RegisterData>) => Promise<{ success: boolean; error?: string }>
+  isAdmin: boolean
+  isManager: boolean
+  isTeamMember: boolean
+}
 
-export const useAuth = () => {
+interface AuthProviderProps {
+  children: ReactNode
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext)
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider')
@@ -12,9 +29,9 @@ export const useAuth = () => {
   return context
 }
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -26,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [])
 
-  const verifyToken = async () => {
+  const verifyToken = async (): Promise<void> => {
     try {
       const response = await api.auth.verifyToken()
       setUser(response.data.user)
@@ -39,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const login = async (email, password) => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await api.auth.login(email, password)
       const { token, user: userData } = response.data
@@ -50,14 +67,14 @@ export const AuthProvider = ({ children }) => {
       
       toast.success(`Welcome back, ${userData.firstName || userData.email}!`)
       return { success: true }
-    } catch (error) {
+    } catch (error: any) {
       const message = error.response?.data?.error || 'Login failed'
       toast.error(message)
       return { success: false, error: message }
     }
   }
 
-  const register = async (userData) => {
+  const register = async (userData: RegisterData): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await api.auth.register(userData)
       const { token, user: newUser } = response.data
@@ -68,14 +85,14 @@ export const AuthProvider = ({ children }) => {
       
       toast.success(`Welcome to TaskFlow, ${newUser.firstName || newUser.email}!`)
       return { success: true }
-    } catch (error) {
+    } catch (error: any) {
       const message = error.response?.data?.error || 'Registration failed'
       toast.error(message)
       return { success: false, error: message }
     }
   }
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
       await api.auth.logout()
     } catch (error) {
@@ -88,20 +105,20 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const updateProfile = async (profileData) => {
+  const updateProfile = async (profileData: Partial<RegisterData>): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await api.auth.updateProfile(profileData)
       setUser(response.data.user)
       toast.success('Profile updated successfully')
       return { success: true }
-    } catch (error) {
+    } catch (error: any) {
       const message = error.response?.data?.error || 'Profile update failed'
       toast.error(message)
       return { success: false, error: message }
     }
   }
 
-  const value = {
+  const value: AuthContextType = {
     user,
     loading,
     login,

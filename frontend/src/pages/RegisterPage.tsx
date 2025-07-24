@@ -1,25 +1,30 @@
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { RegisterData } from "../types";
+
+interface FormData extends RegisterData {
+    confirmPassword: string;
+}
 
 export const RegisterPage = () => {
     const { register: authRegister } = useAuth();
     const navigate = useNavigate();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     
     const { 
         register, 
         handleSubmit, 
         formState: { errors }, 
         watch 
-    } = useForm({
+    } = useForm<FormData>({
         mode: "onChange"
     });
 
     const password = watch("password");
 
-    const onSubmit = async (data) => {
+    const onSubmit: SubmitHandler<FormData> = async (data) => {
         setIsSubmitting(true);
         try {
             const result = await authRegister({

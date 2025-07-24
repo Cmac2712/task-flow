@@ -1,11 +1,46 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { io } from 'socket.io-client'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { io, Socket } from 'socket.io-client'
 import { useAuth } from './AuthContext'
 import toast from 'react-hot-toast'
+import { User } from '../types'
 
-const SocketContext = createContext()
+interface Notification {
+  id: string
+  message: string
+  type: string
+  read?: boolean
+  createdAt: string
+}
 
-export const useSocket = () => {
+interface OnlineUser {
+  userId: string
+  email: string
+  status: 'online' | 'away' | 'busy'
+}
+
+interface SocketContextType {
+  socket: Socket | null
+  connected: boolean
+  onlineUsers: OnlineUser[]
+  notifications: Notification[]
+  joinTaskRoom: (taskId: string) => void
+  leaveTaskRoom: (taskId: string) => void
+  sendTypingIndicator: (taskId: string, isTyping: boolean) => void
+  sendDirectMessage: (recipientId: string, message: string, type?: string) => void
+  updatePresence: (status: 'online' | 'away' | 'busy') => void
+  sendTaskActivity: (taskId: string, activity: string, metadata?: Record<string, any>) => void
+  clearNotifications: () => void
+  markNotificationAsRead: (notificationId: string) => void
+  ping: () => void
+}
+
+interface SocketProviderProps {
+  children: ReactNode
+}
+
+const SocketContext = createContext<SocketContextType | undefined>(undefined)
+
+export const useSocket = (): SocketContextType => {
   const context = useContext(SocketContext)
   if (!context) {
     throw new Error('useSocket must be used within a SocketProvider')
@@ -13,11 +48,11 @@ export const useSocket = () => {
   return context
 }
 
-export const SocketProvider = ({ children }) => {
-  const [socket, setSocket] = useState(null)
-  const [connected, setConnected] = useState(false)
-  const [onlineUsers, setOnlineUsers] = useState([])
-  const [notifications, setNotifications] = useState([])
+export const SocketProvider = ({ children }: SocketProviderProps) => {
+  const [socket, setSocket] = useState<Socket | null>(null)
+  const [connected, setConnected] = useState<boolean>(false)
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([])
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const { user } = useAuth()
 
   useEffect(() => {
@@ -35,7 +70,7 @@ export const SocketProvider = ({ children }) => {
     }
   }, [user])
 
-  const initializeSocket = (token) => {
+  const initializeSocket = (token: string): void => {
     const socketInstance = io(process.env.REACT_APP_NOTIFICATION_SERVICE_URL || 'http://localhost:3004', {
       auth: {
         token
@@ -48,10 +83,12 @@ export const SocketProvider = ({ children }) => {
       setConnected(true)
       
       // Join user-specific room
-      socketInstance.emit('join:room', `user:${user.id}`)
-      
-      // Join role-specific room
-      socketInstance.emit('join:room', `role:${user.role}`)
+      if (user) {
+        socketInstance.emit('join:room', `user:${user.id}`)
+        
+        // Join role-specific room
+        socketInstance.emit('join:room', `role:${user.role}`)
+      }
       
       // Get offline notifications
       socketInstance.emit('get:offline_notifications')
@@ -65,13 +102,13 @@ export const SocketProvider = ({ children }) => {
       setConnected(false)
     })
 
-    socketInstance.on('connect_error', (error) => {
+    socketInstance.on('connect_error', (error: Error) => {
       console.error('Socket connection error:', error)
       setConnected(false)
     })
 
     // Handle notifications
-    socketInstance.on('notification', (notification) => {
+    socketInstance.on('notification', (notification: Notification) => {
       setNotifications(prev => [notification, ...prev.slice(0, 49)]) // Keep last 50
       
       // Show toast for important notifications
@@ -84,7 +121,7 @@ export const SocketProvider = ({ children }) => {
     })
 
     // Handle offline notifications
-    socketInstance.on('notifications:offline', (offlineNotifications) => {
+    socketInstance.on('notifications:offline', (offlineNotifications: Notification[]) => {
       setNotifications(prev => [...offlineNotifications, ...prev])
       
       if (offlineNotifications.length > 0) {
@@ -96,18 +133,18 @@ export const SocketProvider = ({ children }) => {
     })
 
     // Handle real-time task updates
-    socketInstance.on('task:update', (update) => {
+    socketInstance.on('task:update', (update: any) => {
       // This will be handled by individual components
       console.log('Task update received:', update)
     })
 
     // Handle online users updates
-    socketInstance.on('online_users', (users) => {
+    socketInstance.on('online_users', (users: OnlineUser[]) => {
       setOnlineUsers(users)
     })
 
     // Handle user presence updates
-    socketInstance.on('user:presence_update', (update) => {
+    socketInstance.on('user:presence_update', (update: { userId: string; status: 'online' | 'away' | 'busy' }) => {
       setOnlineUsers(prev => 
         prev.map(user => 
           user.userId === update.userId 
@@ -118,13 +155,13 @@ export const SocketProvider = ({ children }) => {
     })
 
     // Handle typing indicators
-    socketInstance.on('task:user_typing', (data) => {
+    socketInstance.on('task:user_typing', (data: any) => {
       // This will be handled by TaskDetail component
       console.log('User typing:', data)
     })
 
     // Handle direct messages
-    socketInstance.on('message:received', (message) => {
+    socketInstance.on('message:received', (message: { from: { email: string }; message: string }) => {
       toast(`Message from ${message.from.email}: ${message.message}`, {
         icon: '💬',
         duration: 5000
@@ -132,32 +169,32 @@ export const SocketProvider = ({ children }) => {
     })
 
     // Handle room events
-    socketInstance.on('room:joined', (data) => {
+    socketInstance.on('room:joined', (data: { room: string }) => {
       console.log(`Joined room: ${data.room}`)
     })
 
-    socketInstance.on('room:left', (data) => {
+    socketInstance.on('room:left', (data: { room: string }) => {
       console.log(`Left room: ${data.room}`)
     })
 
     // Handle task room events
-    socketInstance.on('task:joined', (data) => {
+    socketInstance.on('task:joined', (data: { taskId: string }) => {
       console.log(`Joined task room: ${data.taskId}`)
     })
 
-    socketInstance.on('task:left', (data) => {
+    socketInstance.on('task:left', (data: { taskId: string }) => {
       console.log(`Left task room: ${data.taskId}`)
     })
 
     // Handle ping/pong for connection health
-    socketInstance.on('pong', (data) => {
+    socketInstance.on('pong', (data: any) => {
       console.log('Pong received:', data)
     })
 
     setSocket(socketInstance)
   }
 
-  const disconnectSocket = () => {
+  const disconnectSocket = (): void => {
     if (socket) {
       socket.disconnect()
       setSocket(null)
@@ -167,50 +204,50 @@ export const SocketProvider = ({ children }) => {
     }
   }
 
-  const joinTaskRoom = (taskId) => {
+  const joinTaskRoom = (taskId: string): void => {
     if (socket && connected) {
       socket.emit('join:task', taskId)
     }
   }
 
-  const leaveTaskRoom = (taskId) => {
+  const leaveTaskRoom = (taskId: string): void => {
     if (socket && connected) {
       socket.emit('leave:task', taskId)
     }
   }
 
-  const sendTypingIndicator = (taskId, isTyping) => {
+  const sendTypingIndicator = (taskId: string, isTyping: boolean): void => {
     if (socket && connected) {
       socket.emit('task:typing', { taskId, isTyping })
     }
   }
 
-  const sendDirectMessage = (recipientId, message, type = 'text') => {
+  const sendDirectMessage = (recipientId: string, message: string, type: string = 'text'): void => {
     if (socket && connected) {
       socket.emit('message:direct', { recipientId, message, type })
     }
   }
 
-  const updatePresence = (status) => {
+  const updatePresence = (status: 'online' | 'away' | 'busy'): void => {
     if (socket && connected) {
       socket.emit('user:presence', status)
     }
   }
 
-  const sendTaskActivity = (taskId, activity, metadata = {}) => {
+  const sendTaskActivity = (taskId: string, activity: string, metadata: Record<string, any> = {}): void => {
     if (socket && connected) {
       socket.emit('task:activity', { taskId, activity, metadata })
     }
   }
 
-  const clearNotifications = () => {
+  const clearNotifications = (): void => {
     setNotifications([])
     if (socket && connected) {
       socket.emit('clear:offline_notifications')
     }
   }
 
-  const markNotificationAsRead = (notificationId) => {
+  const markNotificationAsRead = (notificationId: string): void => {
     setNotifications(prev => 
       prev.map(notification => 
         notification.id === notificationId 
@@ -220,13 +257,13 @@ export const SocketProvider = ({ children }) => {
     )
   }
 
-  const ping = () => {
+  const ping = (): void => {
     if (socket && connected) {
       socket.emit('ping')
     }
   }
 
-  const value = {
+  const value: SocketContextType = {
     socket,
     connected,
     onlineUsers,
