@@ -1,60 +1,63 @@
-import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { useSocket } from '../contexts/SocketContext'
-import { 
-  HomeIcon, 
-  CheckSquareIcon, 
-  UserIcon, 
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useSocket } from "../contexts/SocketContext";
+import {
+  HomeIcon,
+  CheckSquareIcon,
+  UserIcon,
   SettingsIcon,
   LogOutIcon,
   BellIcon,
   MenuIcon,
   XIcon,
-  UsersIcon
-} from 'lucide-react'
-import { NotificationPanel } from './NotificationPanel'
+  UsersIcon,
+} from "lucide-react";
+import { SendMessage } from "./SendMessage";
+import { NotificationPanel } from "./NotificationPanel";
 
 const Layout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [notificationsPanelOpen, setNotificationsPanelOpen] = useState(false)
-  const { user, logout, isAdmin, isManager } = useAuth()
-  const { connected, notifications } = useSocket()
-  const location = useLocation()
-  const navigate = useNavigate()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notificationsPanelOpen, setNotificationsPanelOpen] = useState(false);
+  const { user, logout, isAdmin, isManager } = useAuth();
+  const { connected, notifications } = useSocket();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-    { name: 'Tasks', href: '/tasks', icon: CheckSquareIcon },
-    { name: 'Profile', href: '/profile', icon: UserIcon },
-  ]
+    { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+    { name: "Tasks", href: "/tasks", icon: CheckSquareIcon },
+    { name: "Profile", href: "/profile", icon: UserIcon },
+  ];
 
   if (isAdmin || isManager) {
-    navigation.push({ name: 'Admin', href: '/admin', icon: UsersIcon })
+    navigation.push({ name: "Admin", href: "/admin", icon: UsersIcon });
   }
 
   const handleLogout = async () => {
-    await logout()
-    navigate('/login')
-  }
+    await logout();
+    navigate("/login");
+  };
 
-  const unreadNotifications = notifications.filter(n => !n.read).length
+  const unreadNotifications = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      `}
+      >
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <h1 className="text-xl font-bold text-gray-900">TaskFlow</h1>
           <button
@@ -68,27 +71,34 @@ const Layout = ({ children }) => {
         <nav className="mt-6 px-3">
           <div className="space-y-1">
             {navigation.map((item) => {
-              const isActive = location.pathname === item.href
+              const isActive = location.pathname === item.href;
               return (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`
                     group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors
-                    ${isActive 
-                      ? 'bg-primary-100 text-primary-700 border-r-2 border-primary-500' 
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                    ${
+                      isActive
+                        ? "bg-primary-100 text-primary-700 border-r-2 border-primary-500"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     }
                   `}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <item.icon className={`
+                  <item.icon
+                    className={`
                     mr-3 h-5 w-5 flex-shrink-0
-                    ${isActive ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500'}
-                  `} />
+                    ${
+                      isActive
+                        ? "text-primary-500"
+                        : "text-gray-400 group-hover:text-gray-500"
+                    }
+                  `}
+                  />
                   {item.name}
                 </Link>
-              )
+              );
             })}
           </div>
         </nav>
@@ -110,9 +120,13 @@ const Layout = ({ children }) => {
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
             <div className="flex items-center space-x-1">
-              <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-400' : 'bg-red-400'}`} />
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  connected ? "bg-green-400" : "bg-red-400"
+                }`}
+              />
               <span className="text-xs text-gray-500">
-                {connected ? 'Online' : 'Offline'}
+                {connected ? "Online" : "Offline"}
               </span>
             </div>
           </div>
@@ -127,7 +141,7 @@ const Layout = ({ children }) => {
       </div>
 
       {/* Main content */}
-      <div className="lg:ml-64 flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen grow">
         {/* Top bar */}
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6">
@@ -147,19 +161,25 @@ const Layout = ({ children }) => {
                 <BellIcon className="w-6 h-6" />
                 {unreadNotifications > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
                   </span>
                 )}
               </button>
 
               {/* User role badge */}
-              <span className={`
+              <span
+                className={`
                 px-2 py-1 text-xs font-medium rounded-full
-                ${user?.role === 'admin' ? 'bg-red-100 text-red-800' :
-                  user?.role === 'project_manager' ? 'bg-blue-100 text-blue-800' :
-                  'bg-green-100 text-green-800'}
-              `}>
-                {user?.role?.replace('_', ' ').toUpperCase()}
+                ${
+                  user?.role === "admin"
+                    ? "bg-red-100 text-red-800"
+                    : user?.role === "project_manager"
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-green-100 text-green-800"
+                }
+              `}
+              >
+                {user?.role?.replace("_", " ").toUpperCase()}
               </span>
             </div>
           </div>
@@ -168,16 +188,17 @@ const Layout = ({ children }) => {
         {/* Page content */}
         <main className="flex-1 p-4 sm:p-6">
           {children}
+          {/* <SendMessage /> */}
         </main>
+
+        {/* Notification Panel */}
+        <NotificationPanel
+          isOpen={notificationsPanelOpen}
+          onClose={() => setNotificationsPanelOpen(false)}
+        />
       </div>
-
-      {/* Notification Panel */}
-      <NotificationPanel
-        isOpen={notificationsPanelOpen}
-        onClose={() => setNotificationsPanelOpen(false)}
-      />
     </div>
-  )
-}
+  );
+};
 
-export { Layout }
+export { Layout };

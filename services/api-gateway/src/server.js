@@ -109,14 +109,14 @@ app.use(
   createProxyMiddleware({
     target: `http://localhost:${process.env.TASK_SERVICE_PORT || 4002}`,
     changeOrigin: true,
-    pathRewrite: {
-      "^/tasks": "",
-    },
+    // pathRewrite: {
+    //   "^/tasks": "",
+    // },
     onProxyReq: (proxyReq, req) => {
-      // Forward user info to task service
       proxyReq.setHeader("x-user-id", req.user.id);
       proxyReq.setHeader("x-user-role", req.user.role);
       proxyReq.setHeader("x-user-email", req.user.email);
+      fixRequestBody(proxyReq, req);
     },
     onError: (err, req, res) => {
       console.error("Task service proxy error:", err.message);

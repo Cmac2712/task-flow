@@ -9,7 +9,7 @@ import {
   UpdateTaskData,
   Comment,
   CreateCommentData,
-  ApiResponse
+  ApiResponse,
 } from "../types";
 
 const API_BASE_URL =
@@ -64,7 +64,10 @@ class ApiService {
 
   // Auth endpoints
   auth = {
-    login: (email: string, password: string): Promise<AxiosResponse<AuthResponse>> =>
+    login: (
+      email: string,
+      password: string
+    ): Promise<AxiosResponse<AuthResponse>> =>
       this.client.post("/auth/login", { email, password }),
 
     register: (userData: RegisterData): Promise<AxiosResponse<AuthResponse>> =>
@@ -79,14 +82,17 @@ class ApiService {
     getProfile: (): Promise<AxiosResponse<{ user: User }>> =>
       this.client.get("/auth/profile"),
 
-    updateProfile: (profileData: Partial<RegisterData>): Promise<AxiosResponse<{ user: User }>> =>
+    updateProfile: (
+      profileData: Partial<RegisterData>
+    ): Promise<AxiosResponse<{ user: User }>> =>
       this.client.put("/auth/profile", profileData),
   };
 
   // Task endpoints
   tasks = {
-    getAll: (params: Record<string, any> = {}): Promise<AxiosResponse<Task[]>> =>
-      this.client.get("/tasks", { params }),
+    getAll: (
+      params: Record<string, any> = {}
+    ): Promise<AxiosResponse<Task[]>> => this.client.get("/tasks", { params }),
 
     getById: (id: string): Promise<AxiosResponse<Task>> =>
       this.client.get(`/tasks/${id}`),
@@ -94,22 +100,34 @@ class ApiService {
     create: (taskData: CreateTaskData): Promise<AxiosResponse<Task>> =>
       this.client.post("/tasks", taskData),
 
-    update: (id: string, taskData: UpdateTaskData): Promise<AxiosResponse<Task>> =>
+    update: (
+      id: string,
+      taskData: UpdateTaskData
+    ): Promise<AxiosResponse<Task>> =>
       this.client.put(`/tasks/${id}`, taskData),
 
     delete: (id: string): Promise<AxiosResponse<{ message: string }>> =>
       this.client.delete(`/tasks/${id}`),
 
-    updateStatus: (id: string, status: Task['status']): Promise<AxiosResponse<Task>> =>
+    updateStatus: (
+      id: string,
+      status: Task["status"]
+    ): Promise<AxiosResponse<Task>> =>
       this.client.patch(`/tasks/${id}/status`, { status }),
 
     assign: (id: string, userId: string): Promise<AxiosResponse<Task>> =>
       this.client.patch(`/tasks/${id}/assign`, { userId }),
 
-    addWatcher: (id: string, userId: string): Promise<AxiosResponse<{ message: string }>> =>
+    addWatcher: (
+      id: string,
+      userId: string
+    ): Promise<AxiosResponse<{ message: string }>> =>
       this.client.post(`/tasks/${id}/watchers`, { userId }),
 
-    removeWatcher: (id: string, userId: string): Promise<AxiosResponse<{ message: string }>> =>
+    removeWatcher: (
+      id: string,
+      userId: string
+    ): Promise<AxiosResponse<{ message: string }>> =>
       this.client.delete(`/tasks/${id}/watchers/${userId}`),
 
     getByUser: (userId: string): Promise<AxiosResponse<Task[]>> =>
@@ -130,7 +148,10 @@ class ApiService {
     create: (commentData: CreateCommentData): Promise<AxiosResponse<Comment>> =>
       this.client.post("/comments", commentData),
 
-    update: (id: string, commentData: Partial<CreateCommentData>): Promise<AxiosResponse<Comment>> =>
+    update: (
+      id: string,
+      commentData: Partial<CreateCommentData>
+    ): Promise<AxiosResponse<Comment>> =>
       this.client.put(`/comments/${id}`, commentData),
 
     delete: (id: string): Promise<AxiosResponse<{ message: string }>> =>
@@ -142,19 +163,27 @@ class ApiService {
 
   // Admin endpoints
   admin = {
-    getUsers: (params: Record<string, any> = {}): Promise<AxiosResponse<User[]>> =>
+    getUsers: (
+      params: Record<string, any> = {}
+    ): Promise<AxiosResponse<User[]>> =>
       this.client.get("/admin/users", { params }),
 
     getUserById: (id: string): Promise<AxiosResponse<User>> =>
       this.client.get(`/admin/users/${id}`),
 
-    updateUser: (id: string, userData: Partial<RegisterData>): Promise<AxiosResponse<User>> =>
+    updateUser: (
+      id: string,
+      userData: Partial<RegisterData>
+    ): Promise<AxiosResponse<User>> =>
       this.client.put(`/admin/users/${id}`, userData),
 
     deleteUser: (id: string): Promise<AxiosResponse<{ message: string }>> =>
       this.client.delete(`/admin/users/${id}`),
 
-    resetPassword: (id: string, newPassword: string): Promise<AxiosResponse<{ message: string }>> =>
+    resetPassword: (
+      id: string,
+      newPassword: string
+    ): Promise<AxiosResponse<{ message: string }>> =>
       this.client.post(`/admin/users/${id}/reset-password`, {
         newPassword,
       }),

@@ -262,7 +262,8 @@ router.post("/logout", authenticateToken, async (req, res) => {
 });
 
 // Verify token
-router.get("/verify", authenticateToken, (req, res) => {
+router.post("/verify", authenticateToken, (req, res) => {
+  console.log("verifying", authenticateToken);
   res.json({
     valid: true,
     user: {
