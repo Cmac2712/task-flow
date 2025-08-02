@@ -26,7 +26,7 @@ const createTaskSchema = Joi.object({
 const updateTaskSchema = Joi.object({
   title: Joi.string().min(1).max(200),
   description: Joi.string().max(2000).allow(""),
-  status: Joi.string().valid("todo", "in_progress", "done"),
+  status: Joi.string().valid("todo", "in_progress", "done", "cancelled"),
   priority: Joi.string().valid("low", "medium", "high", "urgent"),
   assignedTo: Joi.object({
     userId: Joi.string(),
@@ -149,7 +149,6 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  console.log("TASK ENDPOINT");
   try {
     const { error, value } = createTaskSchema.validate(req.body);
     if (error) {

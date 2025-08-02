@@ -4,7 +4,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'project_manager' | 'team_member';
+  role: "admin" | "project_manager" | "team_member";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -14,7 +14,7 @@ export interface RegisterData {
   password: string;
   firstName: string;
   lastName: string;
-  role?: 'admin' | 'project_manager' | 'team_member';
+  role?: "admin" | "project_manager" | "team_member";
 }
 
 export interface LoginData {
@@ -46,8 +46,8 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high';
+  status: "todo" | "in_progress" | "done" | "cancelled";
+  priority: "low" | "medium" | "high";
   assigneeId?: string;
   createdBy: string;
   createdAt: string;
@@ -58,13 +58,13 @@ export interface Task {
 export interface CreateTaskData {
   title: string;
   description?: string;
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
   assigneeId?: string;
   dueDate?: string;
 }
 
 export interface UpdateTaskData extends Partial<CreateTaskData> {
-  status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  status?: "pending" | "in_progress" | "completed" | "cancelled";
 }
 
 // Comment types

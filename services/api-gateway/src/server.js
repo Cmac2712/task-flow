@@ -109,9 +109,6 @@ app.use(
   createProxyMiddleware({
     target: `http://localhost:${process.env.TASK_SERVICE_PORT || 4002}`,
     changeOrigin: true,
-    // pathRewrite: {
-    //   "^/tasks": "",
-    // },
     onProxyReq: (proxyReq, req) => {
       proxyReq.setHeader("x-user-id", req.user.id);
       proxyReq.setHeader("x-user-role", req.user.role);

@@ -22,12 +22,7 @@ interface TaskListProps {
 }
 
 type SortOption = "dueDate" | "priority" | "status" | "createdAt";
-type FilterStatus =
-  | "all"
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "cancelled";
+type FilterStatus = "all" | "todo" | "in_progress" | "done" | "cancelled";
 type FilterPriority = "all" | "low" | "medium" | "high";
 
 export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
@@ -36,6 +31,12 @@ export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [filterPriority, setFilterPriority] = useState<FilterPriority>("all");
   const [showFilters, setShowFilters] = useState(false);
+
+  const updateTask = async (taskId: string, updatedTask: Partial<Task>) => {
+    console.log(taskId, updatedTask);
+    await api.tasks.update(taskId, updatedTask);
+    refetch();
+  };
 
   const {
     data: tasks,
@@ -60,11 +61,11 @@ export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
 
   const getStatusIcon = (status: Task["status"]) => {
     switch (status) {
-      case "pending":
+      case "todo":
         return <Circle className="w-4 h-4 text-gray-400" />;
       case "in_progress":
         return <PlayCircle className="w-4 h-4 text-blue-500" />;
-      case "completed":
+      case "done":
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       case "cancelled":
         return <XCircle className="w-4 h-4 text-red-500" />;
@@ -88,11 +89,11 @@ export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
 
   const getStatusColor = (status: Task["status"]) => {
     switch (status) {
-      case "pending":
+      case "todo":
         return "bg-gray-100 text-gray-800 border-gray-200";
       case "in_progress":
         return "bg-blue-100 text-blue-800 border-blue-200";
-      case "completed":
+      case "done":
         return "bg-green-100 text-green-800 border-green-200";
       case "cancelled":
         return "bg-red-100 text-red-800 border-red-200";
@@ -209,7 +210,7 @@ export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
       className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
     >
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
             <h2 className="text-xl font-semibold text-gray-900">Tasks</h2>
@@ -232,7 +233,7 @@ export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
         </div>
 
         {/* Search */}
-        <div className="relative mb-4">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
@@ -245,7 +246,7 @@ export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
 
         {/* Filters */}
         {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg mt-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Sort by
@@ -301,7 +302,7 @@ export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
       </div>
 
       {/* Task List */}
-      <div className="p-6">
+      <div className="p-4">
         {filteredAndSortedTasks.length === 0 ? (
           <div className="text-center py-12">
             <Circle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -320,16 +321,31 @@ export const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
           <div className="space-y-3">
             {filteredAndSortedTasks.map((task) => (
               <div
-                key={task.id}
+                key={task._id}
                 className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3 flex-1">
                     <div className="mt-1">{getStatusIcon(task.status)}</div>
+
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-medium text-gray-900 mb-1">
                         {task.title}
                       </h3>
+                      <select
+                        name="status"
+                        id=""
+                        value={task.status}
+                        onChange={(e) =>
+                          updateTask(task._id, { status: e.target.value })
+                        }
+                      >
+                        <option value="">Select Status</option>
+                        <option value="todo">To do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="done">Done</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>{" "}
                       {task.description && (
                         <p className="text-gray-600 mb-3 line-clamp-2">
                           {task.description}
