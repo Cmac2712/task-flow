@@ -36,7 +36,5 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.83.0",
-    "react-hook-form": "^7.60.0"
   }
 }
