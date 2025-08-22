@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, X, Calendar, User, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { CreateTaskData, User as UserType } from "../types";
